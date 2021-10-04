@@ -67,6 +67,14 @@ service /headerparamservice on HeaderBindingEP {
         json responseJson = { val1: header1, val2: header2, val3: headerBool, val4: header3, val5: headerNames};
         return responseJson;
     }
+
+    resource function get q5(@http:Header string x\-Type) returns string {
+        return x\-Type;
+    }
+
+    resource function get q6(@http:Header string? foo) returns string {
+        return foo ?: "empty";
+    }
 }
 
 @test:Config {}
@@ -197,6 +205,26 @@ function testHeaderObjectBinding() {
         json expected = { val1: "foo header not found", val2: "Http header does not exist", val3: false, 
                                 val4: ["Http header does not exist"],  val5: ["bar", "connection", "host", "X-Type"]};
         assertJsonPayloadtoJsonString(response.getJsonPayload(), expected);
+    } else {
+        test:assertFail(msg = "Found unexpected output type: " + response.message());
+    }
+}
+
+@test:Config {}
+function testHeaderParamTokenWithEscapeChar() {
+    http:Response|error response = headerBindingClient->get("/headerparamservice/q5", {"x-Type" : "test"});
+    if response is http:Response {
+        assertTextPayload(response.getTextPayload(), "test");
+    } else {
+        test:assertFail(msg = "Found unexpected output type: " + response.message());
+    }
+}
+
+@test:Config {}
+function testHeaderBindingWithNoHeaderValue() {
+    string|error response = headerBindingClient->get("/headerparamservice/q6", {"foo" : ""});
+    if response is string {
+        test:assertEquals(response, "empty", msg = "Found unexpected output");
     } else {
         test:assertFail(msg = "Found unexpected output type: " + response.message());
     }

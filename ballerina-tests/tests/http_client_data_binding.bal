@@ -206,6 +206,22 @@ service /passthrough on clientDBProxyListener {
         return string:'join("|", ...payload);
     }
 
+    resource function get runtimeErrorsNillable() returns string {
+        string[] payload = [];
+
+        xml?|http:ClientError unionPayload = clientDBBackendClient->post("/backend/getJson", "want json");
+        if unionPayload is http:ClientError {
+            payload.push(unionPayload.message());
+        }
+
+        int?|http:ClientError basicTypeUnionPayload = clientDBBackendClient->post("/backend/getString", "want string");
+        if basicTypeUnionPayload is http:ClientError {
+            payload.push(basicTypeUnionPayload.message());
+        }
+
+        return string:'join("|", ...payload);
+    }
+
     resource function get allMethods(http:Caller caller, http:Request request) returns error? {
         string payload = "";
 
@@ -500,6 +516,20 @@ function testAllBindingErrors() returns error? {
     }
 }
 
+@test:Config {
+    groups: ["dataBinding"]
+}
+function testAllBindingErrorsWithNillableTypes() returns error? {
+    http:Response|error response = clientDBTestClient->get("/passthrough/runtimeErrorsNillable");
+    if (response is http:Response) {
+        test:assertEquals(response.statusCode, 200, msg = "Found unexpected output");
+        assertHeaderValue(check response.getHeader(CONTENT_TYPE), TEXT_PLAIN);
+        assertTextPayload(response.getTextPayload(), "Error occurred while retrieving the xml payload from the response|Error occurred while retrieving the json payload from the response");
+    } else {
+        test:assertFail(msg = "Found unexpected output type: " + response.message());
+    }
+}
+
 // Test basic client with all HTTP request methods
 @test:Config {
     groups: ["dataBinding"]
@@ -686,8 +716,10 @@ function testDetailBodyCreationFailure() {
 function testDBRecordErrorNegative() {
     ClientDBErrorPerson|error response =  clientDBBackendClient->post("/backend/getRecord", "want record");
     if (response is error) {
-        test:assertEquals(response.message(),
+        assertTrueTextPayload(response.message(),
             "Payload binding failed: 'map<json>' value cannot be converted to 'http_tests:ClientDBErrorPerson'");
+        assertTrueTextPayload(response.message(),
+            "missing required field 'weight' of type 'float' in record 'http_tests:ClientDBErrorPerson'");
     } else {
         test:assertFail(msg = "Found unexpected output type: ClientDBErrorPerson");
     }

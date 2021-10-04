@@ -30,6 +30,16 @@ module io.ballerina.stdlib.http {
     requires org.slf4j;
     requires java.logging;
     requires gson;
+    requires io.netty.codec.http;
+    requires io.netty.buffer;
+    requires io.netty.common;
+    requires io.netty.transport;
+    requires io.netty.codec.http2;
+    requires org.eclipse.osgi;
+    requires io.netty.codec;
+    requires io.netty.handler;
+    requires commons.pool;
+    requires io.netty.handler.proxy;
     exports io.ballerina.stdlib.http.api;
     exports io.ballerina.stdlib.http.transport.contract.websocket;
     exports io.ballerina.stdlib.http.transport.contract;
@@ -37,8 +47,10 @@ module io.ballerina.stdlib.http {
     exports io.ballerina.stdlib.http.transport.contract.config;
     exports io.ballerina.stdlib.http.transport.contractimpl;
     exports io.ballerina.stdlib.http.transport.contractimpl.sender.channel.pool;
+    exports io.ballerina.stdlib.http.transport.contractimpl.sender.http2;
     exports io.ballerina.stdlib.http.transport.internal;
     exports io.ballerina.stdlib.http.transport.message;
     exports io.ballerina.stdlib.http.uri;
     exports io.ballerina.stdlib.http.uri.parser;
+    exports io.ballerina.stdlib.http.api.nativeimpl;
 }

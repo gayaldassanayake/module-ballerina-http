@@ -10,9 +10,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - [Enable HTTP trace and access log support](https://github.com/ballerina-platform/ballerina-standard-library/issues/1073)
 - [Add HATEOS link support](https://github.com/ballerina-platform/ballerina-standard-library/issues/1637)
 - [Introduce http:CacheConfig annotation to the resource signature](https://github.com/ballerina-platform/ballerina-standard-library/issues/1533)
+- [Add service specific media-type prefix support in http:ServiceConfig annotation](https://github.com/ballerina-platform/ballerina-standard-library/issues/1620)
+- [Add support for Map Json as query parameter](https://github.com/ballerina-platform/ballerina-standard-library/issues/1670)
+- [Add OAuth2 JWT bearer grant type support](https://github.com/ballerina-platform/ballerina-standard-library/issues/1788)
+- [Add authorization with JWTs with multiple scopes](https://github.com/ballerina-platform/ballerina-standard-library/issues/1801)
+- [Add support to overwrite the scopes config by resource annotation](https://github.com/ballerina-platform/ballerina-standard-library/issues/973)
+- [Introduce introspection resource method to get generated OpenAPI document of the service](https://github.com/ballerina-platform/ballerina-standard-library/issues/1616)
+- [Introduce service config treatNilableAsOptional for query and header params](https://github.com/ballerina-platform/ballerina-standard-library/issues/1928)
 
 ## Fixed
 - [Fix incorrect behaviour of client with mtls](https://github.com/ballerina-platform/ballerina-standard-library/issues/1708)
+- [Fix multiple clients created for same route not using respective config](https://github.com/ballerina-platform/ballerina-standard-library/issues/1727)
+- [Fix not applying of resource auth annotations for some resources](https://github.com/ballerina-platform/ballerina-standard-library/issues/1838)
+- [Fix SSL test failure due to remote address being null](https://github.com/ballerina-platform/ballerina-standard-library/issues/315)
+- [Return error when trying to access the payload after responding](https://github.com/ballerina-platform/ballerina-standard-library/issues/514)
+- [Fix incorrect compiler error positions for resource](https://github.com/ballerina-platform/ballerina-standard-library/issues/523)
+- [Fix performance issue with observability metrics for unique URLs](https://github.com/ballerina-platform/ballerina-standard-library/issues/1630)
+- [Fix support for parameter token with escape characters](https://github.com/ballerina-platform/ballerina-standard-library/issues/1925)
 
 ## [1.1.0-beta.2] - 2021-07-07
 

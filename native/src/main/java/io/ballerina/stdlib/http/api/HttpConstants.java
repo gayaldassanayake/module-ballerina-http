@@ -138,6 +138,8 @@ public class HttpConstants {
     public static final String ANNOTATION_METHOD_PATCH = HTTP_METHOD_PATCH;
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
+    public static final String ANN_NAME_HTTP_INTROSPECTION_DOC_CONFIG = "IntrospectionDocConfig";
+    public static final BString ANN_FIELD_DOC_NAME = StringUtils.fromString("name");
     public static final String ANN_NAME_PARAM_ORDER_CONFIG = "ParamOrderConfig";
     public static final BString ANN_FIELD_PATH_PARAM_ORDER = StringUtils.fromString("pathParamOrder");
     public static final BString ANN_FIELD_ALL_PARAM_ORDER = StringUtils.fromString("allParamOrder");
@@ -147,7 +149,7 @@ public class HttpConstants {
     public static final String DIRTY_RESPONSE = "dirtyResponse";
     public static final BString ANN_FIELD_MEDIA_TYPE = StringUtils.fromString("mediaType");
     public static final BString ANN_FIELD_NAME = StringUtils.fromString("name");
-    public static final String ANN_NAME_CACHE_CONFIG = "CacheConfig";
+    public static final String ANN_NAME_CACHE = "Cache";
 
     public static final String VALUE_ATTRIBUTE = "value";
 
@@ -172,6 +174,7 @@ public class HttpConstants {
 
     public static final String CLIENT = "Client";
     public static final String HTTP_CLIENT = "HttpClient";
+    public static final String CLIENT_CONFIG_HASH_CODE = "ClientConfigHashCode";
 
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
@@ -304,6 +307,7 @@ public class HttpConstants {
     public static final BString HTTP_LOG_FILE_PATH = StringUtils.fromString("path");
     public static final BString HTTP_TRACE_LOG_HOST = StringUtils.fromString("host");
     public static final BString HTTP_TRACE_LOG_PORT = StringUtils.fromString("port");
+    public static final BString HTTP_LOGGING_PROTOCOL = StringUtils.fromString("HTTP");
 
     // ResponseCacheControl struct field names
     public static final BString RES_CACHE_CONTROL_MUST_REVALIDATE_FIELD = StringUtils.fromString("mustRevalidate");
@@ -329,6 +333,7 @@ public class HttpConstants {
     public static final String CONNECTION_HEADER = "Connection";
     public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
     public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
+    public static final String LINK_HEADER = "Link";
 
     //Response codes
     public static final int INVALID_STATUS_CODE = 000;
@@ -486,6 +491,7 @@ public class HttpConstants {
     public static final String MOCK_LISTENER_ENDPOINT = "MockListener";
     public static final String HTTP_LISTENER_ENDPOINT = "Listener";
 
+    public static final String PLUS = "+";
     public static final String COLON = ":";
     public static final String DOLLAR = "$";
     public static final String SINGLE_SLASH = "/";

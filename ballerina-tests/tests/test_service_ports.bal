@@ -42,6 +42,7 @@ const int proxyTest1 = 9019;
 const int proxyTest2 = 9020;
 const int streamTest1 = 9021;
 const int streamTest2 = 9022;
+const int introResTest = 9023;
 
 // Integration test ports
 // HTTP
@@ -120,10 +121,13 @@ const int foClientWithoutStatusCodeTestPort1 = 9571;
 const int foClientWithoutStatusCodeTestPort2 = 9572;
 const int inResponseCachedPayloadTestPort = 9573;
 const int inResponseCachedPayloadTestBEPort = 9574;
-const int httpEnumActionsTestPort = 9575;
-const int payloadRetrievalAfterRespondingTestPort = 9576;
+const int httpEnumMethodsTestPort = 9575;
+const int payloadAccessAfterRespondingTestPort = 9576;
 const int cacheAnnotationTestPort1 = 9577;
 const int cacheAnnotationTestPort2 = 9578;
+const int serviceMediaTypeSubtypePrefixPort = 9579;
+const int queryParamBindingIdealTestPort = 9580;
+const int headerParamBindingIdealTestPort = 9581;
 
 //HTTP2
 const int serverPushTestPort1 = 9601;

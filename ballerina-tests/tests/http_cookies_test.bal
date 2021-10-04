@@ -408,49 +408,6 @@ public isolated function testRemoveSessionCookieByServer() {
     }
 }
 
-// Test to send concurrent requests by cookie client
-@test:Config {
-    enable: false
-}
-public function testSendConcurrentRequests() {
-    http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-5.csv");
-    http:Client cookieClientEndpoint = checkpanic new("http://localhost:9253", {
-            cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore }
-        });
-    worker w1 {
-        http:Response|error response = cookieClientEndpoint->get("/cookie/addPersistentAndSessionCookies");
-    }
-    worker w2 {
-        http:Response|error response = cookieClientEndpoint->get("/cookie/addPersistentAndSessionCookies");
-    }
-    worker w3 {
-        http:Response|error response = cookieClientEndpoint->get("/cookie/addPersistentAndSessionCookies");
-    }
-    worker w4 {
-        http:Response|error response = cookieClientEndpoint->get("/cookie/addPersistentAndSessionCookies");
-    }
-    _ = wait {w1, w2, w3, w4};
-    http:CookieStore? myCookieStore = cookieClientEndpoint.getCookieStore();
-    string[] names =[];
-    if (myCookieStore is http:CookieStore) {
-        http:Cookie[] cookies = myCookieStore.getAllCookies();
-        int i = 0;
-        test:assertEquals(cookies.length(), 2, msg = "Found unexpected output");
-        foreach var item in cookies {
-            string? name = item.name;
-            if (name is string) {
-                names[i] = name;
-            }
-            i += 1;
-        }
-        //Since same two cookies are sent for all concurrent requests, only two cookies are stored in the cookie store.
-        test:assertEquals(names, ["SID003", "SID001"], msg = "Found unexpected output");
-    } else {
-        test:assertFail(msg = "Found unexpected output");
-    }
-    error? removeResults = file:remove("./cookie-test-data", file:RECURSIVE);
-}
-
 // Test to send requests by a client with Circuit Breaker, Retry and Cookie configurations are enabled
 @test:Config {}
 public isolated function testSendRequestsByClient() {

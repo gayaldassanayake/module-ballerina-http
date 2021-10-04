@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.stdlib.http.api.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
+import static io.ballerina.stdlib.http.api.HttpConstants.SINGLE_SLASH;
 import static io.ballerina.stdlib.http.api.HttpUtil.checkConfigAnnotationAvailability;
 
 /**
@@ -74,6 +75,7 @@ public class HttpResource {
     private int pathParamCount;
     private String returnMediaType;
     private BMap cacheConfig;
+    private boolean treatNilableAsOptional;
 
     protected HttpResource(MethodType resource, HttpService parentService) {
         this.balResource = resource;
@@ -84,6 +86,10 @@ public class HttpResource {
             this.populateMethod();
             this.populateReturnAnnotationData();
         }
+    }
+
+    protected HttpResource() {
+
     }
 
     public String getName() {
@@ -146,7 +152,7 @@ public class HttpResource {
                 resourcePath.append(HttpUtil.unescapeAndEncodeValue(segment));
             }
         }
-        this.path = resourcePath.toString().replaceAll(HttpConstants.REGEX, HttpConstants.SINGLE_SLASH);
+        this.path = resourcePath.toString().replaceAll(HttpConstants.REGEX, SINGLE_SLASH);
         this.pathParamCount = count;
     }
 
@@ -196,6 +202,14 @@ public class HttpResource {
 
     public void setTransactionInfectable(boolean transactionInfectable) {
         this.transactionInfectable = transactionInfectable;
+    }
+
+    public void setTreatNilableAsOptional(boolean treatNilableAsOptional) {
+        this.treatNilableAsOptional = treatNilableAsOptional;
+    }
+
+    public boolean isTreatNilableAsOptional() {
+        return treatNilableAsOptional;
     }
 
     public static HttpResource buildHttpResource(MethodType resource, HttpService httpService) {
@@ -289,7 +303,7 @@ public class HttpResource {
                     }
                 }
             }
-            if (ParamHandler.CACHE_CONFIG_ANNOTATION.equals(key.getValue())) {
+            if (ParamHandler.CACHE_ANNOTATION.equals(key.getValue())) {
                 this.cacheConfig = annotations.getMapValue(key);
             }
         }
@@ -301,6 +315,10 @@ public class HttpResource {
 
     BMap getResponseCacheConfig() {
         return cacheConfig;
+    }
+
+    protected String getAbsoluteResourcePath() {
+        return (parentService.getBasePath() + getPath()).replaceAll("/+", SINGLE_SLASH);
     }
 
     // Followings added due to WebSub requirement

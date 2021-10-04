@@ -19,8 +19,16 @@
 package io.ballerina.stdlib.http.api;
 
 import io.ballerina.runtime.api.values.BObject;
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * A unit test class for http module {@link HttpService} class functions.
@@ -68,5 +76,47 @@ public class HttpServiceTest {
         httpService.setBasePath("ballerina");
 
         Assert.assertEquals(httpService.getBasePath(), "/ballerina");
+    }
+
+    @Test
+    public void testGetPayloadFunctionOfIntrospectionResource() {
+        BObject service = TestUtils.getNewServiceObject("hello");
+        HttpService httpService = new HttpService(service);
+        String filePath = "resources/ballerina/http/testopenapidoc.json";
+        HttpIntrospectionResource introspectionResource = new HttpIntrospectionResource(httpService, filePath);
+        byte[] payload = introspectionResource.getPayload();
+        byte[] fileContent = new byte[0];
+        try {
+            Path resourceDirectory = Paths.get("src", "test", "resources");
+            String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+            fileContent = FileUtils.readFileToByteArray(
+                    new File(absolutePath + "/resources/ballerina/http/testopenapidoc.json"));
+        } catch (IOException e) {
+            Assert.fail("testopenapidoc read failure" + e.getMessage());
+        }
+        Assert.assertTrue(Arrays.equals(payload, fileContent));
+    }
+
+    @Test
+    public void testGetIntrospectionResourceIdOfIntrospectionResource() {
+        Assert.assertEquals(HttpIntrospectionResource.getIntrospectionResourceId(), "$get$openapi-doc-dygixywsw");
+    }
+
+    @Test
+    public void testGetNameOfIntrospectionResource() {
+        BObject service = TestUtils.getNewServiceObject("hello");
+        HttpService httpService = new HttpService(service);
+        HttpIntrospectionResource introspectionResource = new HttpIntrospectionResource(httpService, "abc");
+        Assert.assertEquals(introspectionResource.getName(), "$get$openapi-doc-dygixywsw");
+    }
+
+    @Test
+    public void testGetAbsoluteResourcePath() {
+        HttpService httpService = new HttpService(TestUtils.getNewServiceObject("hello"));
+        httpService.setBasePath("/basePath/");
+        HttpResource resource = new HttpResource(TestUtils.getNewMethodType(), httpService);
+        resource.setPath("/abc/{xyz}");
+        httpService.setResources(Collections.singletonList(resource));
+        Assert.assertEquals(resource.getAbsoluteResourcePath(), "/basePath/abc/{xyz}");
     }
 }

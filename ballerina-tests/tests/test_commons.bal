@@ -29,6 +29,7 @@ const string TRANSFER_ENCODING = "transfer-encoding";
 const string LOCATION = "location";
 const string ORIGIN = "origin";
 const string ALLOW = "Allow";
+const string LINK = "Link";
 const string ACCESS_CONTROL_ALLOW_ORIGIN = "access-control-allow-origin";
 const string ACCESS_CONTROL_ALLOW_CREDENTIALS = "access-control-allow-credentials";
 const string ACCESS_CONTROL_ALLOW_HEADERS = "access-control-allow-headers";
@@ -135,6 +136,27 @@ isolated function assertErrorHeaderValue(string[]? headerKey, string expectValue
         test:assertEquals(headerKey[0], expectValue, msg = "Found unexpected headerValue");
     } else {
         test:assertFail(msg = "Header not found");
+    }
+}
+
+isolated function assertErrorMessage(any|error err, string expectValue) {
+    if err is error {
+        test:assertEquals(err.message(), expectValue, msg = "Found unexpected error message");
+    } else {
+        test:assertFail(msg = "Found unexpected output");
+    }
+}
+
+isolated function assertErrorCauseMessage(any|error err, string expectValue) {
+    if err is error {
+        error? errorCause = err.cause();
+        if errorCause is error {
+            test:assertEquals(errorCause.message(), expectValue, msg = "Found unexpected error cause message");
+        } else {
+            test:assertFail(msg = "Found unexpected error cause");
+        }
+    } else {
+        test:assertFail(msg = "Found unexpected output");
     }
 }
 

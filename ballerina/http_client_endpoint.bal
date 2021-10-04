@@ -71,7 +71,7 @@ public client isolated class Client {
 
     private isolated function processPost(string path, RequestMessage message, TargetType targetType,
             string? mediaType, map<string|string[]>? headers) returns Response|PayloadType|ClientError {
-        Request req = buildRequest(message);
+        Request req = check buildRequest(message);
         populateOptions(req, mediaType, headers);
         Response|ClientError response = self.httpClient->post(path, req);
         if (observabilityEnabled && response is Response) {
@@ -98,7 +98,7 @@ public client isolated class Client {
 
     private isolated function processPut(string path, RequestMessage message, TargetType targetType,
             string? mediaType, map<string|string[]>? headers) returns Response|PayloadType|ClientError {
-        Request req = buildRequest(message);
+        Request req = check buildRequest(message);
         populateOptions(req, mediaType, headers);
         Response|ClientError response = self.httpClient->put(path, req);
         if (observabilityEnabled && response is Response) {
@@ -125,7 +125,7 @@ public client isolated class Client {
 
     private isolated function processPatch(string path, RequestMessage message, TargetType targetType,
             string? mediaType, map<string|string[]>? headers) returns Response|PayloadType|ClientError {
-        Request req = buildRequest(message);
+        Request req = check buildRequest(message);
         populateOptions(req, mediaType, headers);
         Response|ClientError response = self.httpClient->patch(path, req);
         if (observabilityEnabled && response is Response) {
@@ -152,7 +152,7 @@ public client isolated class Client {
 
     private isolated function processDelete(string path, RequestMessage message, TargetType targetType,
             string? mediaType, map<string|string[]>? headers) returns Response|PayloadType|ClientError {
-        Request req = buildRequest(message);
+        Request req = check buildRequest(message);
         populateOptions(req, mediaType, headers);
         Response|ClientError response = self.httpClient->delete(path, req);
         if (observabilityEnabled && response is Response) {
@@ -241,7 +241,7 @@ public client isolated class Client {
     private isolated function processExecute(string httpVerb, string path, RequestMessage message,
             TargetType targetType, string? mediaType, map<string|string[]>? headers)
             returns Response|PayloadType|ClientError {
-        Request req = buildRequest(message);
+        Request req = check buildRequest(message);
         populateOptions(req, mediaType, headers);
         Response|ClientError response = self.httpClient->execute(httpVerb, path, req);
         if (observabilityEnabled && response is Response) {
@@ -281,7 +281,7 @@ public client isolated class Client {
     # + message - An HTTP outbound request or any allowed payload
     # + return - An `http:HttpFuture` that represents an asynchronous service invocation or else an `http:ClientError` if the submission fails
     remote isolated function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
-        Request req = buildRequest(message);
+        Request req = check buildRequest(message);
         return self.httpClient->submit(httpVerb, path, req);
 
     }
@@ -387,12 +387,6 @@ public type ResponseLimitConfigs record {|
     int maxHeaderSize = 8192;
     int maxEntityBodySize = -1;
 |};
-
-isolated function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolConfig, string clientUrl,
-ClientConfiguration clientEndpointConfig) returns ClientError? = @java:Method {
-   'class: "io.ballerina.stdlib.http.api.client.endpoint.CreateSimpleHttpClient",
-   name: "createSimpleHttpClient"
-} external;
 
 # Provides settings related to HTTP/2 protocol.
 #
@@ -664,12 +658,12 @@ isolated function performDataBinding(Response response, TargetType targetType) r
         return response.getTextPayload();
     } else if (targetType is typedesc<string?>) {
         string|ClientError payload = response.getTextPayload();
-        return payload is ClientError ? () : payload;
+        return payload is NoContentError ? () : payload;
     } else if (targetType is typedesc<xml>) {
         return response.getXmlPayload();
     } else if (targetType is typedesc<xml?>) {
         xml|ClientError payload = response.getXmlPayload();
-        return payload is ClientError ? () : payload;
+        return payload is NoContentError ? () : payload;
     } else if (targetType is typedesc<byte[]>) {
         return response.getBinaryPayload();
     } else if (targetType is typedesc<byte[]?>) {
@@ -677,7 +671,7 @@ isolated function performDataBinding(Response response, TargetType targetType) r
         if payload is byte[] {
             return payload.length() == 0 ? () : payload;
         }
-        return;
+        return payload;
     } else if (targetType is typedesc<record {| anydata...; |}>) {
         json payload = check response.getJsonPayload();
         var result = payload.cloneWithType(targetType);
@@ -686,9 +680,10 @@ isolated function performDataBinding(Response response, TargetType targetType) r
         json|ClientError payload = response.getJsonPayload();
         if payload is json {
             var result = payload.cloneWithType(targetType);
-            return result is error ? () : result;
+            return result is error ? createPayloadBindingError(result) : result;
+        } else {
+            return payload is NoContentError ? () : payload;
         }
-        return;
     } else if (targetType is typedesc<record {| anydata...; |}[]>) {
         json payload = check response.getJsonPayload();
         var result = payload.cloneWithType(targetType);
@@ -697,9 +692,10 @@ isolated function performDataBinding(Response response, TargetType targetType) r
         json|ClientError payload = response.getJsonPayload();
         if payload is json {
             var result = payload.cloneWithType(targetType);
-            return result is error ? () : result;
+            return result is error ? createPayloadBindingError(result) : result;
+        } else {
+            return payload is NoContentError ? () : payload;
         }
-        return;
     } else if (targetType is typedesc<map<json>>) {
         json payload = check response.getJsonPayload();
         return <map<json>> payload;
@@ -707,6 +703,8 @@ isolated function performDataBinding(Response response, TargetType targetType) r
         json|ClientError result = response.getJsonPayload();
         return result is NoContentError ? (): result;
     } else {
+        // Consume payload to avoid memory leaks
+        byte[]|ClientError payload = response.getBinaryPayload();
         return error ClientError("invalid target type, expected: http:Response, string, xml, json, map<json>, byte[], record, record[] or a union of such a type with nil");
     }
 }
@@ -777,8 +775,8 @@ isolated function createPayloadBindingError(error result) returns PayloadBinding
     return error PayloadBindingError(errPrefix + result.message(), result);
 }
 
-# Represents HTTP actions.
-public enum Action {
+# Represents HTTP methods.
+public enum Method {
     GET,
     POST,
     PUT,
