@@ -15,6 +15,7 @@
 // under the License.
 
 import 'service.representations as rep;
+import ballerina/http;
 
 public isolated function getLocations() returns rep:Locations {
     return { 

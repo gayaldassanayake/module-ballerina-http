@@ -16,15 +16,18 @@
 
 import ballerina/http;
 import 'service.representations as rep;
+import ballerina/openapi;
 import 'service.mock;
 
 # A fake mountain resort
+@openapi:ServiceInfo { embed: true }
+@http:ServiceConfig { mediaTypeSubtypePrefix: "vnd.snowpeak.reservation" }
 service /snowpeak on new http:Listener(9090) {
 
     # Represents Snowpeak location resource
     # 
     # + return - `Location` representation
-    resource function get locations() returns @CacheControl rep:Locations {
+    resource function get locations() returns @http:Cache rep:Locations {
         rep:Locations locations = mock:getLocations();
         return locations;
     }
