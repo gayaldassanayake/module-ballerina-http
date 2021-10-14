@@ -101,17 +101,29 @@ public type ReservationReceipt record {|
     # Reservation
     Reservation reservation;
 |};
+# The response for successful reservation update
 public type ReservationUpdated record {|
     *http:Ok; 
+    # The payload for successful reservation update
     ReservationReceipt body;
 |};
+# The response for successful reservation creation
 public type ReservationCreated record {|
     *http:Created; 
+    # The payload for successful reservation creation 
     ReservationReceipt body;
 |};
+
+# Represents the unexpected error
+public type SnowpeakErrorBody record {|
+    # Error message
+    string msg;
+|};
+# The response for the unsuccessful reservation creation 
 public type ReservationConflict record {|
     *http:Conflict; 
-    string body = "Error occurred while updating the reservation";
+    # The payload for the unsuccessful reservation creation
+    SnowpeakErrorBody body;
 |};
 
 # Reperesents payement for rooms
@@ -139,21 +151,22 @@ public type PaymentReceipt record {|
     # Booked rooms
     Room[] rooms;
 |};
+# The response for the successful payment cration
 public type PaymentCreated record {|
     *http:Created;
+    # The payload for the successful payment cration
     PaymentReceipt body;
 |};
+# The response for the unsuccessful payment creation
 public type PaymentConflict record {|
     *http:Conflict;
-    string body = "Error occurred while updating the payment";
+    # The payload for the unsuccessful payment creation
+    SnowpeakErrorBody body;
 |};
 
-# Represents the unexpected error
-public type SnowpeakErrorBody record {|
-    # Error message
-    string msg;
-|};
+# The response for the unexpected error
 public type SnowpeakError record {|
     *http:InternalServerError;
+    # The payload for the unexpected error
     SnowpeakErrorBody body;
 |};
