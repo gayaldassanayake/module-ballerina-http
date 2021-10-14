@@ -16,20 +16,23 @@
 
 import ballerina/http;
 import 'service.representations as rep;
-import ballerina/openapi;
 import 'service.mock;
 
+configurable int port = ?;
+
 # A fake mountain resort
-@openapi:ServiceInfo { embed: true }
-@http:ServiceConfig { mediaTypeSubtypePrefix: "vnd.snowpeak.reservation" }
-service /snowpeak on new http:Listener(9090) {
+@http:ServiceConfig { mediaTypeSubtypePrefix: "vnd.snowpeak.reservation", cors: { allowOrigins: ["*"]} }
+service /snowpeak on new http:Listener(port) {
 
     # Represents Snowpeak location resource
     # 
-    # + return - `Location` representation
-    resource function get locations() returns @http:Cache rep:Locations {
-        rep:Locations locations = mock:getLocations();
-        return locations;
+    # + return - `Location` or `SnowpeakError` representation
+    resource function get locations() returns @http:Cache rep:Locations|rep:SnowpeakError {
+        do {
+            return check mock:getLocations();
+        } on fail var e {
+            return { body: { msg: e.toString() }};
+        }
     }
 
     # Reperesents Snowpeak room collection resource 
@@ -37,41 +40,53 @@ service /snowpeak on new http:Listener(9090) {
     # + id - Unique identification of location
     # + startDate - Start date in format yyyy-mm-dd
     # + endDate - End date in format yyyy-mm-dd
-    # + return - `Rooms` representation
+    # + return - `Rooms` or `SnowpeakError` representation
     resource function get locations/[string id]/rooms(string startDate, string endDate) 
-                returns rep:Rooms {
-        rep:Rooms rooms = mock:getRooms(startDate, endDate);
-        return rooms;
+                returns rep:Rooms|rep:SnowpeakError {
+        do {
+            return check mock:getRooms(startDate, endDate);
+        } on fail var e {
+            return { body: { msg: e.toString() }};
+        }
     }
 
     # Represents Snowpeak reservation resource
     # 
     # + reservation - Reservation representation 
-    # + return - `ReservationCreated` or ReservationConflict representation
+    # + return - `ReservationCreated`, `ReservationConflict` or `SnowpeakError` representation
     resource function post reservation(@http:Payload rep:Reservation reservation)
-                returns rep:ReservationCreated|rep:ReservationConflict {
-        rep:ReservationCreated created = mock:createReservation(reservation);
-        return created;
+                returns rep:ReservationCreated|rep:ReservationConflict|rep:SnowpeakError {
+        do {
+            return check mock:createReservation(reservation);
+        } on fail var e {
+            return { body: { msg: e.toString() }};
+        }
     }
 
     # Represents Snowpeak reservation resource
     # 
     # + reservation - Reservation representation 
-    # + return - `ReservationCreated` or ReservationConflict representation
+    # + return - `ReservationCreated`, `ReservationConflict` or `SnowpeakError` representation
     resource function put reservation(@http:Payload rep:Reservation reservation) 
-                returns rep:ReservationUpdated|rep:ReservationConflict {
-        rep:ReservationUpdated updated = mock:updateReservation(reservation);
-        return updated;
+                returns rep:ReservationUpdated|rep:ReservationConflict|rep:SnowpeakError {
+        do {
+            return check mock:updateReservation(reservation);
+        } on fail var e {
+            return { body: { msg: e.toString() }};
+        }
     }
 
     # Represents Snowpeak payment resource 
     # 
     # + id - Unique identification of payment
     # + payment - Payment representation
-    # + return - `PaymentCreated` or `PaymentConflict` representation
+    # + return - `PaymentCreated`, `PaymentConflict` or `SnowpeakError` representation
     resource function post payment/[string id](@http:Payload rep:Payment payment) 
-                returns rep:PaymentCreated|rep:PaymentConflict {
-        rep:PaymentCreated paymentCreated = mock:createPayment(id, payment);
-        return paymentCreated;
+                returns rep:PaymentCreated|rep:PaymentConflict|rep:SnowpeakError {
+        do {
+            return check mock:createPayment(id, payment);
+        } on fail var e {
+            return { body: { msg: e.toString() }};
+        }
     }
 }

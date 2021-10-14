@@ -147,3 +147,13 @@ public type PaymentConflict record {|
     *http:Conflict;
     string body = "Error occurred while updating the payment";
 |};
+
+# Represents the unexpected error
+public type SnowpeakErrorBody record {|
+    # Error message
+    string msg;
+|};
+public type SnowpeakError record {|
+    *http:InternalServerError;
+    SnowpeakErrorBody body;
+|};

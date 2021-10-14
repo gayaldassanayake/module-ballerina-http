@@ -17,7 +17,7 @@
 import 'service.representations as rep;
 import ballerina/http;
 
-public isolated function getLocations() returns rep:Locations {
+public isolated function getLocations() returns rep:Locations|error {
     return { 
         locations: [
             {
@@ -50,7 +50,7 @@ public isolated function getLocations() returns rep:Locations {
     };
 }
 
-public isolated function getRooms(string startDate, string endDate) returns rep:Rooms {
+public isolated function getRooms(string startDate, string endDate) returns rep:Rooms|error {
     return {
         rooms: [
             {
@@ -75,7 +75,7 @@ public isolated function getRooms(string startDate, string endDate) returns rep:
     };
 }
 
-public isolated function createReservation(rep:Reservation reservation) returns rep:ReservationCreated {
+public isolated function createReservation(rep:Reservation reservation) returns rep:ReservationCreated|error {
     return {
         headers: {
             location: "/snowpeak/reservation/r1000"
@@ -120,7 +120,7 @@ public isolated function createReservation(rep:Reservation reservation) returns 
     };
 }
 
-public isolated function updateReservation(rep:Reservation reservation) returns rep:ReservationUpdated {
+public isolated function updateReservation(rep:Reservation reservation) returns rep:ReservationUpdated|error {
     return {
         body: {
             id: "re1000",
@@ -162,7 +162,7 @@ public isolated function updateReservation(rep:Reservation reservation) returns 
     };
 }
 
-public isolated function createPayment(string id, rep:Payment payment) returns rep:PaymentCreated {
+public isolated function createPayment(string id, rep:Payment payment) returns rep:PaymentCreated|error {
     return {
         headers: {
             location: "/snowpeak/reservation/p1000"
