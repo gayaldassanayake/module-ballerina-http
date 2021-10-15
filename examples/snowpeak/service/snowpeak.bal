@@ -18,16 +18,16 @@ import ballerina/http;
 import 'service.representations as rep;
 import 'service.mock;
 
-configurable int port = ?;
+configurable int port = 9090;
 
 # A fake mountain resort
-@http:ServiceConfig { mediaTypeSubtypePrefix: "vnd.snowpeak.reservation", cors: { allowOrigins: ["*"]} }
+@http:ServiceConfig { mediaTypeSubtypePrefix: "vnd.snowpeak.reservation", cors: { allowOrigins: ["*"] }}
 service /snowpeak on new http:Listener(port) {
 
-    # Represents Snowpeak location resource
+    # Snowpeak locations resource
     # 
     # + return - `Location` or `SnowpeakError` representation
-    resource function get locations() returns @http:Cache rep:Locations|rep:SnowpeakError {
+    resource function get locations() returns @http:Cache rep:Locations|rep:SnowpeakInternalError {
         do {
             return check mock:getLocations();
         } on fail var e {
@@ -35,14 +35,14 @@ service /snowpeak on new http:Listener(port) {
         }
     }
 
-    # Reperesents Snowpeak room collection resource 
+    # Snowpeak rooms resource 
     # 
     # + id - Unique identification of location
     # + startDate - Start date in format yyyy-mm-dd
     # + endDate - End date in format yyyy-mm-dd
     # + return - `Rooms` or `SnowpeakError` representation
     resource function get locations/[string id]/rooms(string startDate, string endDate) 
-                returns rep:Rooms|rep:SnowpeakError {
+                returns rep:Rooms|rep:SnowpeakInternalError {
         do {
             return check mock:getRooms(startDate, endDate);
         } on fail var e {
@@ -50,43 +50,43 @@ service /snowpeak on new http:Listener(port) {
         }
     }
 
-    # Represents Snowpeak reservation resource
-    # 
-    # + reservation - Reservation representation 
-    # + return - `ReservationCreated`, `ReservationConflict` or `SnowpeakError` representation
-    resource function post reservation(@http:Payload rep:Reservation reservation)
-                returns rep:ReservationCreated|rep:ReservationConflict|rep:SnowpeakError {
-        do {
-            return check mock:createReservation(reservation);
-        } on fail var e {
-            return { body: { msg: e.toString() }};
-        }
-    }
-
-    # Represents Snowpeak reservation resource
+    # Snowpeak create/updaate reservation resource
     # 
     # + reservation - Reservation representation 
     # + return - `ReservationCreated`, `ReservationConflict` or `SnowpeakError` representation
     resource function put reservation(@http:Payload rep:Reservation reservation) 
-                returns rep:ReservationUpdated|rep:ReservationConflict|rep:SnowpeakError {
+                returns rep:ReservationCreated|rep:ReservationConflict|rep:SnowpeakInternalError {
         do {
-            return check mock:updateReservation(reservation);
+            return check mock:createReservation(reservation);
         } on fail var e {
-            return { body: { msg: e.toString() }};
+            return <rep:SnowpeakInternalError>{ body: { msg: e.toString() }};
         }
     }
 
-    # Represents Snowpeak payment resource 
+    # Snowpeak cancel reservation resource
     # 
-    # + id - Unique identification of payment
+    # + id - Unique identification of reservation
+    # + return - `ReservationCanceled` or `SnowpeakError` representation
+    resource function delete reservation/[string id]() returns 
+                            rep:ReservationCanceled|rep:SnowpeakInternalError {
+        do {
+            return check mock:cancelReservation(id);
+        } on fail var e {
+            return <rep:SnowpeakInternalError>{ body: { msg: e.toString() }};
+        }
+    }
+
+    # Snowpeak payment resource 
+    # 
+    # + id - Unique identification of reservation
     # + payment - Payment representation
     # + return - `PaymentCreated`, `PaymentConflict` or `SnowpeakError` representation
-    resource function post payment/[string id](@http:Payload rep:Payment payment) 
-                returns rep:PaymentCreated|rep:PaymentConflict|rep:SnowpeakError {
+    resource function put payment/[string id](@http:Payload rep:Payment payment) 
+                returns rep:PaymentCreated|rep:PaymentConflict|rep:SnowpeakInternalError {
         do {
             return check mock:createPayment(id, payment);
         } on fail var e {
-            return { body: { msg: e.toString() }};
+            return <rep:SnowpeakInternalError>{ body: { msg: e.toString() }};
         }
     }
 }

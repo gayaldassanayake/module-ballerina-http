@@ -42,10 +42,14 @@ public enum RoomStatus {
     RESERVED,
     BOOKED
 }
+public enum ReservationState {
+    VALID,
+    CANCELED
+}
 
 # Represents resort room
 public type Room record {|
-    # Unique identification
+    # Unique identification of the room
     string id;
     #Types of rooms available
     RoomCategory category;
@@ -88,7 +92,7 @@ public type Reservation record {|
 # Represents a receipt for the reservation
 public type ReservationReceipt record {|
     *http:Links;
-    # Unique identification 
+    # Unique identification of the receipt
     string id;
     # Expiry date in yyyy-mm-dd
     string expiryDate;
@@ -100,6 +104,13 @@ public type ReservationReceipt record {|
     decimal total;
     # Reservation
     Reservation reservation;
+    # State of the reservation
+    ReservationState state;
+|};
+# Represents the unexpected error
+public type SnowpeakError record {|
+    # Error message
+    string msg;
 |};
 # The response for successful reservation update
 public type ReservationUpdated record {|
@@ -113,17 +124,17 @@ public type ReservationCreated record {|
     # The payload for successful reservation creation 
     ReservationReceipt body;
 |};
-
-# Represents the unexpected error
-public type SnowpeakErrorBody record {|
-    # Error message
-    string msg;
-|};
 # The response for the unsuccessful reservation creation 
 public type ReservationConflict record {|
     *http:Conflict; 
     # The payload for the unsuccessful reservation creation
-    SnowpeakErrorBody body;
+    SnowpeakError body;
+|};
+# The response for the successful reservation cancelation 
+public type ReservationCanceled record {|
+    *http:Ok;
+    # The payload for the successful reservation deletion
+    ReservationReceipt body;
 |};
 
 # Reperesents payement for rooms
@@ -133,13 +144,14 @@ public type Payment record {|
     # Card number
     int cardNumber;
     # Expiration month of the card in mm
-    string expiryMonth;
+    int expiryMonth;
     # Expiaration year of the card in yyyy
-    string expiryYear; 
+    int expiryYear; 
 |};
 
 # Reperesents receipt for the payment
 public type PaymentReceipt record {|
+    *http:Links;
     # Unique identification 
     string id;
     # Currency used in price
@@ -161,12 +173,12 @@ public type PaymentCreated record {|
 public type PaymentConflict record {|
     *http:Conflict;
     # The payload for the unsuccessful payment creation
-    SnowpeakErrorBody body;
+    SnowpeakError body;
 |};
 
 # The response for the unexpected error
-public type SnowpeakError record {|
+public type SnowpeakInternalError record {|
     *http:InternalServerError;
     # The payload for the unexpected error
-    SnowpeakErrorBody body;
+    SnowpeakError body;
 |};
