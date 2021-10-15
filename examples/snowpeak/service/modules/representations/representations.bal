@@ -21,7 +21,7 @@ public type Location record {|
     *http:Links;
     # Name of the location
     string name;
-    # Unique identification
+    # Unique identification of the location
     string id;
     # Address of the location
     string address;
