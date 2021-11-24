@@ -14,21 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/http;
+
 # Represents location
-public type Location record {
+public type Location record {|
     *http:Links;
     # Name of the location
     string name;
-    # Unique identification
+    # Unique identification of the location
     string id;
     # Address of the location
     string address;
-};
+|};
 # Represents a collection of locations
-public type Locations record {
+public type Locations record {|
     # collection of locations
     Location[] locations;
-};
+|};
 
 public enum RoomCategory {
     DELUXE,
@@ -40,10 +42,14 @@ public enum RoomStatus {
     RESERVED,
     BOOKED
 }
+public enum ReservationState {
+    VALID,
+    CANCELED
+}
 
 # Represents resort room
-public type Room record {
-    # Unique identification
+public type Room record {|
+    # Unique identification of the room
     string id;
     #Types of rooms available
     RoomCategory category;
@@ -59,21 +65,21 @@ public type Room record {
     decimal price;
     # Number of rooms as per the status
     int count;
-};
+|};
 # Represents a collection of resort rooms
-public type Rooms record {
+public type Rooms record {|
     *http:Links;
     # Array of rooms
     Room[] rooms;
-};
+|};
 
 # Represents rooms be reserved
-public type ReserveRoom record {
+public type ReserveRoom record {|
     # Unique identification of the room
     string id;
     # Number of rooms
     int count;
-};
+|};
 # Represents a reservation of rooms
 public type Reservation record {|
     # Rooms to be reserved
@@ -84,9 +90,9 @@ public type Reservation record {|
     string endDate;
 |};
 # Represents a receipt for the reservation
-public type ReservationReceipt record {
+public type ReservationReceipt record {|
     *http:Links;
-    # Unique identification 
+    # Unique identification of the receipt
     string id;
     # Expiry date in yyyy-mm-dd
     string expiryDate;
@@ -98,7 +104,38 @@ public type ReservationReceipt record {
     decimal total;
     # Reservation
     Reservation reservation;
-};
+    # State of the reservation
+    ReservationState state;
+|};
+# Represents the unexpected error
+public type SnowpeakError record {|
+    # Error message
+    string msg;
+|};
+# The response for successful reservation update
+public type ReservationUpdated record {|
+    *http:Ok; 
+    # The payload for successful reservation update
+    ReservationReceipt body;
+|};
+# The response for successful reservation creation
+public type ReservationCreated record {|
+    *http:Created; 
+    # The payload for successful reservation creation 
+    ReservationReceipt body;
+|};
+# The response for the unsuccessful reservation creation 
+public type ReservationConflict record {|
+    *http:Conflict; 
+    # The payload for the unsuccessful reservation creation
+    SnowpeakError body;
+|};
+# The response for the successful reservation cancelation 
+public type ReservationCanceled record {|
+    *http:Ok;
+    # The payload for the successful reservation deletion
+    ReservationReceipt body;
+|};
 
 # Reperesents payement for rooms
 public type Payment record {|
@@ -107,13 +144,14 @@ public type Payment record {|
     # Card number
     int cardNumber;
     # Expiration month of the card in mm
-    string expiryMonth;
+    int expiryMonth;
     # Expiaration year of the card in yyyy
-    string expiryYear; 
+    int expiryYear; 
 |};
 
 # Reperesents receipt for the payment
-public type PaymentReceipt record {
+public type PaymentReceipt record {|
+    *http:Links;
     # Unique identification 
     string id;
     # Currency used in price
@@ -124,4 +162,23 @@ public type PaymentReceipt record {
     string lastUpdated;
     # Booked rooms
     Room[] rooms;
-};
+|};
+# The response for the successful payment cration
+public type PaymentCreated record {|
+    *http:Created;
+    # The payload for the successful payment cration
+    PaymentReceipt body;
+|};
+# The response for the unsuccessful payment creation
+public type PaymentConflict record {|
+    *http:Conflict;
+    # The payload for the unsuccessful payment creation
+    SnowpeakError body;
+|};
+
+# The response for the unexpected error
+public type SnowpeakInternalError record {|
+    *http:InternalServerError;
+    # The payload for the unexpected error
+    SnowpeakError body;
+|};

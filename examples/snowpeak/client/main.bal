@@ -49,8 +49,8 @@ public function main() returns error? {
     rep:Payment payment = {
         "cardholderName": "Joe Biden",
         "cardNumber": 4444555566667777,
-        "expiryMonth": "09",
-        "expiryYear": "2033"
+        "expiryMonth": 9,
+        "expiryYear": 2033
     };
     rep:PaymentReceipt paymentReceipt = check snowpeak->post(recervationReciept.links[2].href, payment);
 }
