@@ -107,14 +107,13 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private long pipeliningLimit;
     private EventExecutorGroup pipeliningGroup;
     private boolean webSocketCompressionEnabled;
-    private ChannelPipeline serverPipeline;
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initializing source channel pipeline");
         }
-        serverPipeline = ch.pipeline();
+        ChannelPipeline serverPipeline = ch.pipeline();
 
         if (http2Enabled) {
             if (sslHandlerFactory != null) {
@@ -390,10 +389,6 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setWebSocketCompressionEnabled(boolean webSocketCompressionEnabled) {
         this.webSocketCompressionEnabled = webSocketCompressionEnabled;
-    }
-
-    public ChannelPipeline getServerPipeline() {
-        return serverPipeline;
     }
 
     /**
